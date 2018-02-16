@@ -37,6 +37,19 @@ export default class LightwalletProvider {
           const secretKey = Buffer.from(this.opts.ks.exportPrivateKey(address, pwDerivedKey), 'hex');
           cb(null, secretKey);
         });
+      },
+      signTransaction: (txParams, cb) => {
+        this.opts.ks.keyFromPassword(this.opts.password, (err, pwDerivedKey) => {
+          if (err) return cb(err);
+          const secretKey = Buffer.from(this.opts.ks.exportPrivateKey(txParams.from, pwDerivedKey), 'hex');
+
+          if (!secretKey) cb('Account not found', null);
+          var tx = new Transaction(txParams);
+          tx.sign(secretKey);
+          var rawTx = '0x' + tx.serialize().toString('hex');
+          console.log(rawTx);
+          cb(null, rawTx);
+        });
       }
     }));
     this.engine.addProvider(new FiltersSubprovider());
