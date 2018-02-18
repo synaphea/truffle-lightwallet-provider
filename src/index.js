@@ -35,14 +35,15 @@ export default class LightwalletProvider {
         this.opts.ks.keyFromPassword(this.opts.password, (err, pwDerivedKey) => {
           if (err) return cb(err);
           const secretKey = Buffer.from(this.opts.ks.exportPrivateKey(address, pwDerivedKey), 'hex');
+          if (!secretKey) cb('Account not found', null);
           cb(null, secretKey);
         });
       },
       signTransaction: (txParams, cb) => {
         this.opts.ks.keyFromPassword(this.opts.password, (err, pwDerivedKey) => {
           if (err) return cb(err);
+          console.log(this.opts.ks.getAddresses());
           const secretKey = Buffer.from(this.opts.ks.exportPrivateKey(txParams.from, pwDerivedKey), 'hex');
-
           if (!secretKey) cb('Account not found', null);
           var tx = new Transaction(txParams);
           tx.sign(secretKey);
